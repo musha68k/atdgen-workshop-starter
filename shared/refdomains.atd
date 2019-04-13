@@ -12,6 +12,13 @@ type refdomain = {
                             >;
 }
 
+type stats = {
+  refdomains: int;
+  ips: int;
+  class_c: int;
+}
+
 type refdomains = {
-  refdomains: refdomain list
+  refdomains: refdomain list;
+  stats: stats;
 }

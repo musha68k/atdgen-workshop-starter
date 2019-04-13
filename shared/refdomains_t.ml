@@ -1,6 +1,8 @@
 (* Auto-generated from "refdomains.atd" *)
               [@@@ocaml.warning "-27-32-35-39"]
 
+type stats = { refdomains: int; ips: int; class_c: int }
+
 type refdomain = {
   refdomain: string;
   backlinks: int;
@@ -10,4 +12,4 @@ type refdomain = {
   domain_rating: Domain_rating_wrapper.t
 }
 
-type refdomains = { refdomains: refdomain list }
+type refdomains = { refdomains: refdomain list; stats: stats }

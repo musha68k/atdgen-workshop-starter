@@ -1,6 +1,8 @@
 (* Auto-generated from "refdomains.atd" *)
               [@@@ocaml.warning "-27-32-35-39"]
 
+type stats = Refdomains_t.stats = { refdomains: int; ips: int; class_c: int }
+
 type refdomain = Refdomains_t.refdomain = {
   refdomain: string;
   backlinks: int;
@@ -10,8 +12,66 @@ type refdomain = Refdomains_t.refdomain = {
   domain_rating: Domain_rating_wrapper.t
 }
 
-type refdomains = Refdomains_t.refdomains = { refdomains: refdomain list }
+type refdomains = Refdomains_t.refdomains = {
+  refdomains: refdomain list;
+  stats: stats
+}
 
+let write_stats = (
+  Atdgen_codec_runtime.Encode.make (fun (t : stats) ->
+    (
+    Atdgen_codec_runtime.Encode.obj
+      [
+          Atdgen_codec_runtime.Encode.field
+            (
+            Atdgen_codec_runtime.Encode.int
+            )
+          ~name:"refdomains"
+          t.refdomains
+        ;
+          Atdgen_codec_runtime.Encode.field
+            (
+            Atdgen_codec_runtime.Encode.int
+            )
+          ~name:"ips"
+          t.ips
+        ;
+          Atdgen_codec_runtime.Encode.field
+            (
+            Atdgen_codec_runtime.Encode.int
+            )
+          ~name:"class_c"
+          t.class_c
+      ]
+    )
+  )
+)
+let read_stats = (
+  Atdgen_codec_runtime.Decode.make (fun json ->
+    (
+      ({
+          refdomains =
+            Atdgen_codec_runtime.Decode.decode
+            (
+              Atdgen_codec_runtime.Decode.int
+              |> Atdgen_codec_runtime.Decode.field "refdomains"
+            ) json;
+          ips =
+            Atdgen_codec_runtime.Decode.decode
+            (
+              Atdgen_codec_runtime.Decode.int
+              |> Atdgen_codec_runtime.Decode.field "ips"
+            ) json;
+          class_c =
+            Atdgen_codec_runtime.Decode.decode
+            (
+              Atdgen_codec_runtime.Decode.int
+              |> Atdgen_codec_runtime.Decode.field "class_c"
+            ) json;
+      } : stats)
+    )
+  )
+)
 let write__2 = (
     Atdgen_codec_runtime.Encode.int
   |> Atdgen_codec_runtime.Encode.contramap (Domain_rating_wrapper.unwrap)
@@ -145,6 +205,13 @@ let write_refdomains = (
             )
           ~name:"refdomains"
           t.refdomains
+        ;
+          Atdgen_codec_runtime.Encode.field
+            (
+            write_stats
+            )
+          ~name:"stats"
+          t.stats
       ]
     )
   )
@@ -158,6 +225,12 @@ let read_refdomains = (
             (
               read__3
               |> Atdgen_codec_runtime.Decode.field "refdomains"
+            ) json;
+          stats =
+            Atdgen_codec_runtime.Decode.decode
+            (
+              read_stats
+              |> Atdgen_codec_runtime.Decode.field "stats"
             ) json;
       } : refdomains)
     )
