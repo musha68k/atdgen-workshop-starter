@@ -10,7 +10,7 @@ let getRefdomainsJson = () => {
   Node.Path.join([|dirname, "refdomains.json"|])
   ->Node.Fs.readFileAsUtf8Sync
   ->Js.Json.parseExn
-  ->Refdomains.decodeMain;
+  ->Refdomains_bs.read_refdomains;
 };
 
 let app = express();
@@ -27,7 +27,7 @@ App.useOnPath(
 
 App.get(app, ~path="/refdomains") @@
 Middleware.from((_next, _req) =>
-  Response.sendJson(getRefdomainsJson()->Refdomains.encodeMain)
+  Response.sendJson(getRefdomainsJson()->Refdomains_bs.write_refdomains)
 );
 
 let onListen = err =>

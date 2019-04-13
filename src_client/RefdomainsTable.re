@@ -1,3 +1,5 @@
+open Belt;
+
 let (catch, resolve, then_) = Js.Promise.(catch, resolve, then_);
 
 /* State declaration */
@@ -5,12 +7,12 @@ type state =
   | Init
   | FetchingData
   | Error
-  | DataReady(array(Refdomains.t));
+  | DataReady(list(Refdomains_bs.refdomain));
 
 /* Action declaration */
 type action =
   | ComponentMounted
-  | DataFetched(array(Refdomains.t))
+  | DataFetched(list(Refdomains_bs.refdomain))
   | DataFetchingFailed(Js.Promise.error);
 
 /* Component template declaration.
@@ -38,10 +40,10 @@ let make = _children => {
           |> then_(response => response |> Window.json())
           |> then_(json =>
                json
-               |> Refdomains.decodeMain
+               |> Refdomains_bs.read_refdomains
                |> (
                  decoded =>
-                   self.send(DataFetched(decoded.refDomains)) |> resolve
+                   self.send(DataFetched(decoded.refdomains)) |> resolve
                )
              )
           |> catch(_error => {
@@ -62,14 +64,24 @@ let make = _children => {
     | FetchingData => <p> {s("Fetching data...")} </p>
     | Error =>
       <p> {s("Error while loading data. Check the browser console.")} </p>
-    | DataReady(_refdomains) =>
+    | DataReady(refdomains) =>
       <table>
         <thead>
           <tr> <th> {s("Refdomain")} </th> <th> {s("Backlinks")} </th> </tr>
         </thead>
         <tbody>
-          <tr> <td> {s("foo.com")} </td> <td> {s("3")} </td> </tr>
-          <tr> <td> {s("bar.com")} </td> <td> {s("6")} </td> </tr>
+          ...{
+               refdomains
+               ->List.map(rd =>
+                   <tr>
+                     <td> {ReasonReact.string(rd.refdomain)} </td>
+                     <td>
+                       {ReasonReact.string(string_of_int(rd.backlinks))}
+                     </td>
+                   </tr>
+                 )
+               ->List.toArray
+             }
         </tbody>
       </table>
     };
