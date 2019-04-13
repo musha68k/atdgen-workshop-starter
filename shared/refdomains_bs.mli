@@ -6,8 +6,8 @@ type refdomain = Refdomains_t.refdomain = {
   backlinks: int;
   refpages: int;
   first_seen: string;
-  last_visited: string;
-  domain_rating: int
+  last_visited: Js.Date.t;
+  domain_rating: Domain_rating_wrapper.t
 }
 
 type refdomains = Refdomains_t.refdomains = { refdomains: refdomain list }

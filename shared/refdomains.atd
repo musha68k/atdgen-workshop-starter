@@ -3,8 +3,13 @@ type refdomain = {
   backlinks: int;
   refpages: int;
   first_seen: string;
-  last_visited: string;
-  domain_rating: int;
+  last_visited: string wrap <ocaml 
+                        t="Js.Date.t"
+                        wrap="Js.Date.fromString"
+                        unwrap="Js.Date.toString">;
+  domain_rating: int wrap <ocaml
+                            module="Domain_rating_wrapper"
+                            >;
 }
 
 type refdomains = {

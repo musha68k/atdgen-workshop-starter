@@ -78,6 +78,18 @@ let make = _children => {
                      <td>
                        {ReasonReact.string(string_of_int(rd.backlinks))}
                      </td>
+                     <td>
+                       {ReasonReact.string(Js.Date.toString(rd.last_visited))}
+                     </td>
+                     <td>
+                       {ReasonReact.string(
+                          switch (rd.domain_rating) {
+                          | Poor(_) => "POOR"
+                          | Average(_) => "AVERAGE"
+                          | Good(_) => "GOOD"
+                          },
+                        )}
+                     </td>
                    </tr>
                  )
                ->List.toArray

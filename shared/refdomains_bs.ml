@@ -6,12 +6,30 @@ type refdomain = Refdomains_t.refdomain = {
   backlinks: int;
   refpages: int;
   first_seen: string;
-  last_visited: string;
-  domain_rating: int
+  last_visited: Js.Date.t;
+  domain_rating: Domain_rating_wrapper.t
 }
 
 type refdomains = Refdomains_t.refdomains = { refdomains: refdomain list }
 
+let write__2 = (
+    Atdgen_codec_runtime.Encode.int
+  |> Atdgen_codec_runtime.Encode.contramap (Domain_rating_wrapper.unwrap)
+)
+let read__2 = (
+  (
+    Atdgen_codec_runtime.Decode.int
+  ) |> (Atdgen_codec_runtime.Decode.map (Domain_rating_wrapper.wrap))
+)
+let write__1 = (
+    Atdgen_codec_runtime.Encode.string
+  |> Atdgen_codec_runtime.Encode.contramap (Js.Date.toString)
+)
+let read__1 = (
+  (
+    Atdgen_codec_runtime.Decode.string
+  ) |> (Atdgen_codec_runtime.Decode.map (Js.Date.fromString))
+)
 let write_refdomain = (
   Atdgen_codec_runtime.Encode.make (fun (t : refdomain) ->
     (
@@ -47,14 +65,14 @@ let write_refdomain = (
         ;
           Atdgen_codec_runtime.Encode.field
             (
-            Atdgen_codec_runtime.Encode.string
+            write__1
             )
           ~name:"last_visited"
           t.last_visited
         ;
           Atdgen_codec_runtime.Encode.field
             (
-            Atdgen_codec_runtime.Encode.int
+            write__2
             )
           ~name:"domain_rating"
           t.domain_rating
@@ -93,25 +111,25 @@ let read_refdomain = (
           last_visited =
             Atdgen_codec_runtime.Decode.decode
             (
-              Atdgen_codec_runtime.Decode.string
+              read__1
               |> Atdgen_codec_runtime.Decode.field "last_visited"
             ) json;
           domain_rating =
             Atdgen_codec_runtime.Decode.decode
             (
-              Atdgen_codec_runtime.Decode.int
+              read__2
               |> Atdgen_codec_runtime.Decode.field "domain_rating"
             ) json;
       } : refdomain)
     )
   )
 )
-let write__1 = (
+let write__3 = (
   Atdgen_codec_runtime.Encode.list (
     write_refdomain
   )
 )
-let read__1 = (
+let read__3 = (
   Atdgen_codec_runtime.Decode.list (
     read_refdomain
   )
@@ -123,7 +141,7 @@ let write_refdomains = (
       [
           Atdgen_codec_runtime.Encode.field
             (
-            write__1
+            write__3
             )
           ~name:"refdomains"
           t.refdomains
@@ -138,7 +156,7 @@ let read_refdomains = (
           refdomains =
             Atdgen_codec_runtime.Decode.decode
             (
-              read__1
+              read__3
               |> Atdgen_codec_runtime.Decode.field "refdomains"
             ) json;
       } : refdomains)
