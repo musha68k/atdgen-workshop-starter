@@ -13,3 +13,5 @@ type refdomain = {
 }
 
 type refdomains = { refdomains: refdomain list; stats: stats }
+
+type refdomains_result = { ok: refdomains option; error: string option }

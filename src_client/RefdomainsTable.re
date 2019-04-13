@@ -6,14 +6,15 @@ let (catch, resolve, then_) = Js.Promise.(catch, resolve, then_);
 type state =
   | Init
   | FetchingData
-  | Error
+  | Error(string)
   | DataReady(list(Refdomains_bs.refdomain));
 
 /* Action declaration */
 type action =
   | ComponentMounted
   | DataFetched(list(Refdomains_bs.refdomain))
-  | DataFetchingFailed(Js.Promise.error);
+  | DataFetchingFailed(Js.Promise.error)
+  | DataFetchedError(string);
 
 /* Component template declaration.
    Needs to be **after** state and action declarations! */
@@ -32,6 +33,7 @@ let make = _children => {
   /* State transitions */
   reducer: (action, _state) =>
     switch (action) {
+    | DataFetchedError(x) => ReasonReact.Update(Error(x))
     | ComponentMounted =>
       ReasonReact.UpdateWithSideEffects(
         FetchingData,
@@ -40,10 +42,15 @@ let make = _children => {
           |> then_(response => response |> Window.json())
           |> then_(json =>
                json
-               |> Refdomains_bs.read_refdomains
+               |> Refdomains_bs.read_refdomains_result
                |> (
                  decoded =>
-                   self.send(DataFetched(decoded.refdomains)) |> resolve
+                   switch (decoded) {
+                   | {ok: Some(x), error: _} =>
+                     self.send(DataFetched(x.refdomains)) |> resolve
+                   | {ok: _, error: Some(x)} =>
+                     self.send(DataFetchedError(x)) |> resolve
+                   }
                )
              )
           |> catch(_error => {
@@ -54,7 +61,7 @@ let make = _children => {
       )
     | DataFetchingFailed(err) =>
       Js.log(err);
-      ReasonReact.Update(Error);
+      ReasonReact.Update(Error("DERP"));
     | DataFetched(json) => ReasonReact.Update(DataReady(json))
     },
 
@@ -62,8 +69,10 @@ let make = _children => {
     switch (state) {
     | Init => <p> {s("Component ready")} </p>
     | FetchingData => <p> {s("Fetching data...")} </p>
-    | Error =>
-      <p> {s("Error while loading data. Check the browser console.")} </p>
+    | Error(x) =>
+      <p>
+        {s("Error while loading data. Check the browser console." ++ x)}
+      </p>
     | DataReady(refdomains) =>
       <table>
         <thead>

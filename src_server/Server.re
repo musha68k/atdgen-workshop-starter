@@ -6,12 +6,16 @@ let dirname =
   | None => Js.Exn.raiseError("Could not get __dirname")
   };
 
-let getRefdomainsJson = () => {
-  Node.Path.join([|dirname, "refdomains.json"|])
-  ->Node.Fs.readFileAsUtf8Sync
-  ->Js.Json.parseExn
-  ->Refdomains_bs.read_refdomains;
-};
+let getRefdomainsJson = () =>
+  try (
+    Node.Path.join([|dirname, "refdomains.json"|])
+    ->Node.Fs.readFileAsUtf8Sync
+    ->Js.Json.parseExn
+    ->Refdomains_bs.read_refdomains
+    ->Belt.Result.Ok
+  ) {
+  | _ => Belt.Result.Error("THE END")
+  };
 
 let app = express();
 
@@ -27,7 +31,14 @@ App.useOnPath(
 
 App.get(app, ~path="/refdomains") @@
 Middleware.from((_next, _req) =>
-  Response.sendJson(getRefdomainsJson()->Refdomains_bs.write_refdomains)
+  Response.sendJson(
+    switch (getRefdomainsJson()) {
+    | Belt.Result.Ok(x) =>
+      Refdomains_bs.write_refdomains_result({ok: Some(x), error: None})
+    | Belt.Result.Error(x) =>
+      Refdomains_bs.write_refdomains_result({ok: None, error: Some(x)})
+    },
+  )
 );
 
 let onListen = err =>

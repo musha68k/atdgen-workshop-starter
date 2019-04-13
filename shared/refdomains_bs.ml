@@ -17,6 +17,11 @@ type refdomains = Refdomains_t.refdomains = {
   stats: stats
 }
 
+type refdomains_result = Refdomains_t.refdomains_result = {
+  ok: refdomains option;
+  error: string option
+}
+
 let write_stats = (
   Atdgen_codec_runtime.Encode.make (fun (t : stats) ->
     (
@@ -233,6 +238,68 @@ let read_refdomains = (
               |> Atdgen_codec_runtime.Decode.field "stats"
             ) json;
       } : refdomains)
+    )
+  )
+)
+let write__5 = (
+  Atdgen_codec_runtime.Encode.option_as_constr (
+    Atdgen_codec_runtime.Encode.string
+  )
+)
+let read__5 = (
+  Atdgen_codec_runtime.Decode.option_as_constr (
+    Atdgen_codec_runtime.Decode.string
+  )
+)
+let write__4 = (
+  Atdgen_codec_runtime.Encode.option_as_constr (
+    write_refdomains
+  )
+)
+let read__4 = (
+  Atdgen_codec_runtime.Decode.option_as_constr (
+    read_refdomains
+  )
+)
+let write_refdomains_result = (
+  Atdgen_codec_runtime.Encode.make (fun (t : refdomains_result) ->
+    (
+    Atdgen_codec_runtime.Encode.obj
+      [
+          Atdgen_codec_runtime.Encode.field_o
+            (
+            write_refdomains
+            )
+          ~name:"ok"
+          t.ok
+        ;
+          Atdgen_codec_runtime.Encode.field_o
+            (
+            Atdgen_codec_runtime.Encode.string
+            )
+          ~name:"error"
+          t.error
+      ]
+    )
+  )
+)
+let read_refdomains_result = (
+  Atdgen_codec_runtime.Decode.make (fun json ->
+    (
+      ({
+          ok =
+            Atdgen_codec_runtime.Decode.decode
+            (
+              read_refdomains
+              |> Atdgen_codec_runtime.Decode.fieldOptional "ok"
+            ) json;
+          error =
+            Atdgen_codec_runtime.Decode.decode
+            (
+              Atdgen_codec_runtime.Decode.string
+              |> Atdgen_codec_runtime.Decode.fieldOptional "error"
+            ) json;
+      } : refdomains_result)
     )
   )
 )
