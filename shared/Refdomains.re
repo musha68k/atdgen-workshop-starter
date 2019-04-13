@@ -13,7 +13,20 @@ type main = {refDomains: array(t)};
 
 // Encoders
 
-let encodeOne: t => Js.Json.t = r => Obj.magic(r); // <---- Implement
+// let encodeOne: t => Js.Json.t = r => Obj.magic(r); // <---- Implement
+
+let encodeOne: t => Js.Json.t =
+  r =>
+    Json.Encode.(
+      object_([
+        ("refdomain", string(r.refdomain)),
+        ("backlinks", int(r.backlinks)),
+        ("refpages", int(r.refpages)),
+        ("first_seen", string(r.firstSeen)),
+        ("last_visited", string(r.lastVisited)),
+        ("domain_rating", int(r.domainRating)),
+      ])
+    );
 
 let encodeArray: array(t) => Js.Json.t = arr => Obj.magic(arr); // <---- Implement
 
@@ -22,9 +35,19 @@ let encodeMain = main =>
 
 // Decoders
 
-let decodeOne: Js.Json.t => t = json => Obj.magic(json); // <---- Implement
+let decodeOne: Js.Json.t => t =
+  json =>
+    Json.Decode.{
+      refdomain: field("refdomain", string, json),
+      backlinks: 42,
+      refpages: field("refpages", int, json),
+      firstSeen: field("first_seen", string, json),
+      lastVisited: field("last_visited", string, json),
+      domainRating: field("domain_rating", int, json),
+    };
 
-let decodeArray: Js.Json.t => array(t) = json => Obj.magic(json); // <---- Implement
+let decodeArray: Js.Json.t => array(t) =
+  json => Json.Decode.array(decodeOne, json);
 
 let decodeMain = json =>
   Json.Decode.{refDomains: json |> field("refdomains", decodeArray)};
